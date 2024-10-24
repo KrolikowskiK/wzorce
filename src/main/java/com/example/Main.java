@@ -1,5 +1,8 @@
 package com.example;
 
+import com.example.item.Item;
+import com.example.item.Package;
+import com.example.item.Product;
 import com.example.order.ExpressOrderCreator;
 import com.example.order.OrderCreator;
 import com.example.order.PickupOrderCreator;
@@ -12,18 +15,25 @@ public class Main {
         ExternalPaymentService paymentService = new ExternalPaymentService();
         PaymentAdapter adapter = new PaymentAdapter(paymentService);
 
-        makeOrder("express", adapter);
-        makeOrder("pickup", adapter);
+        Item compositeItem = new Package(
+            new Item[] {
+                new Product(),
+                new Package(new Item[] { new Product(), new Product() } )
+            }
+        );
+
+        makeOrder("express", compositeItem, adapter);
+        makeOrder("pickup", compositeItem, adapter);
     }
 
-    public static void makeOrder(String type, PaymentProcessor pp) {
+    public static void makeOrder(String type, Item item, PaymentProcessor pp) {
         if (type.equals("express")) {
             OrderCreator creator = new ExpressOrderCreator();
-            creator.processOrder(pp);
+            creator.processOrder(item, pp);
         }
         if (type.equals("pickup")) {
             OrderCreator creator = new PickupOrderCreator();
-            creator.processOrder(pp);
+            creator.processOrder(item, pp);
         }
     }
 }

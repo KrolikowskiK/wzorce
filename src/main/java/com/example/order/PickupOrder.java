@@ -1,9 +1,11 @@
 package com.example.order;
 
+import com.example.item.Item;
+
 public class PickupOrder implements Order {
     @Override
-    public double getTotal() {
-        return 10;
+    public double getTotal(Item item) {
+        return item.getPrice() + 10;
     }
 
     @Override
