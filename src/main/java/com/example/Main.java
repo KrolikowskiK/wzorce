@@ -3,22 +3,27 @@ package com.example;
 import com.example.order.ExpressOrderCreator;
 import com.example.order.OrderCreator;
 import com.example.order.PickupOrderCreator;
+import com.example.payment.ExternalPaymentService;
+import com.example.payment.PaymentAdapter;
+import com.example.payment.PaymentProcessor;
 
 public class Main {
     public static void main(String[] args) {
-        // 1. factory method
-        makeOrder("express");
-        makeOrder("pickup");
+        ExternalPaymentService paymentService = new ExternalPaymentService();
+        PaymentAdapter adapter = new PaymentAdapter(paymentService);
+
+        makeOrder("express", adapter);
+        makeOrder("pickup", adapter);
     }
 
-    public static void makeOrder(String type) {
+    public static void makeOrder(String type, PaymentProcessor pp) {
         if (type.equals("express")) {
             OrderCreator creator = new ExpressOrderCreator();
-            creator.processOrder();
+            creator.processOrder(pp);
         }
         if (type.equals("pickup")) {
             OrderCreator creator = new PickupOrderCreator();
-            creator.processOrder();
+            creator.processOrder(pp);
         }
     }
 }
