@@ -1,5 +1,6 @@
 package com.example;
 
+import com.example.database.DBProxy;
 import com.example.item.Item;
 import com.example.item.Package;
 import com.example.item.Product;
@@ -24,16 +25,18 @@ public class Main {
 
         makeOrder("express", compositeItem, adapter);
         makeOrder("pickup", compositeItem, adapter);
+
+        new DBProxy().printDbLogs();
     }
 
     public static void makeOrder(String type, Item item, PaymentProcessor pp) {
         if (type.equals("express")) {
-            OrderCreator creator = new ExpressOrderCreator();
-            creator.processOrder(item, pp);
+            OrderCreator creator = new ExpressOrderCreator(pp);
+            creator.processOrder(item);
         }
         if (type.equals("pickup")) {
-            OrderCreator creator = new PickupOrderCreator();
-            creator.processOrder(item, pp);
+            OrderCreator creator = new PickupOrderCreator(pp);
+            creator.processOrder(item);
         }
     }
 }
