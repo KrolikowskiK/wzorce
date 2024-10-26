@@ -1,5 +1,6 @@
-package com.example.order;
+package com.example.order.creator;
 
+import com.example.order.PickupOrder;
 import com.example.payment.PaymentProcessor;
 
 public class PickupOrderCreator extends OrderCreator {
