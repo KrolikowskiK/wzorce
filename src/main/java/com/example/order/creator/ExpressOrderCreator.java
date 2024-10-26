@@ -1,13 +1,9 @@
 package com.example.order.creator;
 
 import com.example.order.ExpressOrder;
-import com.example.payment.PaymentProcessor;
+import com.example.payment.service.PaymentProcessor;
 
 public class ExpressOrderCreator extends OrderCreator {
-
-    public ExpressOrderCreator(PaymentProcessor pp) {
-        super(pp);
-    }
 
     @Override
     public ExpressOrder createOrder() {

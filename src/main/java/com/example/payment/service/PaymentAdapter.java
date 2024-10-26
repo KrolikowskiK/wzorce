@@ -1,4 +1,4 @@
-package com.example.payment;
+package com.example.payment.service;
 
 import com.example.database.DBProxy;
 import com.example.database.Database;
@@ -6,9 +6,10 @@ import com.example.database.Database;
 public class PaymentAdapter implements PaymentProcessor {
     private ExternalPaymentService externalService;
     private Database dbHandle;
+    public static PaymentAdapter pa;
 
-    public PaymentAdapter(ExternalPaymentService externalService) {
-        this.externalService = externalService;
+    private PaymentAdapter() {
+        this.externalService = new ExternalPaymentService();
         dbHandle = new DBProxy();
     }
 
@@ -22,5 +23,12 @@ public class PaymentAdapter implements PaymentProcessor {
         double transformedAmount = transform(amount);
         dbHandle.executeQuery("INSERT INTO PAYMENTS ... VALUES ...");
         externalService.makePayment(transformedAmount);
+    }
+
+    public static PaymentAdapter getPaymentAdapter() {
+        if (pa == null) {
+            pa = new PaymentAdapter();
+        }
+        return pa;
     }
 }

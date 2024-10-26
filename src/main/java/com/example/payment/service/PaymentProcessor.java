@@ -1,4 +1,4 @@
-package com.example.payment;
+package com.example.payment.service;
 
 // our payment service
 public interface PaymentProcessor {

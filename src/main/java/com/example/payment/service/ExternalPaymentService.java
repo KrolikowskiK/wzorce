@@ -1,4 +1,4 @@
-package com.example.payment;
+package com.example.payment.service;
 
 public class ExternalPaymentService {
     public void makePayment(double value) {

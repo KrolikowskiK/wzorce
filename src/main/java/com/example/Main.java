@@ -11,17 +11,13 @@ import com.example.order.creator.PickupOrderCreator;
 import com.example.order.decorator.DiscountDecorator;
 import com.example.order.decorator.GiftWrappingDecorator;
 import com.example.order.decorator.ShippingInsuranceDecorator;
-import com.example.payment.ExternalPaymentService;
-import com.example.payment.PaymentAdapter;
-import com.example.payment.PaymentProcessor;
+import com.example.payment.service.PaymentAdapter;
 
 import java.util.ArrayList;
 import java.util.function.UnaryOperator;
 
 public class Main {
     public static void main(String[] args) {
-        ExternalPaymentService paymentService = new ExternalPaymentService();
-        PaymentAdapter adapter = new PaymentAdapter(paymentService);
 
         Item compositeItem = new Package(
             new Item[] {
@@ -30,13 +26,13 @@ public class Main {
             }
         );
 
-        makeOrder("express", compositeItem, adapter, new String[] { "shippingInsurance" });
-        makeOrder("pickup", compositeItem, adapter, new String[] { "giftWrapping", "discount" });
+        makeOrder(compositeItem, "express", "paypal", new String[] { "shippingInsurance" });
+        makeOrder(compositeItem, "pickup", "card", new String[] { "giftWrapping", "discount" });
 
         new DBProxy().printDbLogs();
     }
 
-    public static void makeOrder(String type, Item item, PaymentProcessor pp, String[] decorators) {
+    public static void makeOrder(Item item, String type, String paymentType, String[] decorators) {
         ArrayList<UnaryOperator<Order>> decoratorFunctions = new ArrayList<UnaryOperator<Order>>();
         for (String decoName : decorators) {
             if (decoName.equals("shippingInsurance")) {
@@ -51,12 +47,13 @@ public class Main {
         }
 
         if (type.equals("express")) {
-            OrderCreator creator = new ExpressOrderCreator(pp);
-            creator.processOrder(item, decoratorFunctions);
+            OrderCreator creator = new ExpressOrderCreator();
+            creator.processOrder(item, decoratorFunctions, paymentType);
         }
         if (type.equals("pickup")) {
-            OrderCreator creator = new PickupOrderCreator(pp);
-            creator.processOrder(item, decoratorFunctions);
+            OrderCreator creator = new PickupOrderCreator();
+            creator.processOrder(item, decoratorFunctions, paymentType);
         }
+        System.out.println();
     }
 }

@@ -2,7 +2,7 @@ package com.example.order;
 
 import com.example.item.Item;
 
-public class BasicOrder implements Order {
+public class BasicOrder extends Order {
     @Override
     public double getTotal(Item item) {
         return item.getPrice() + 40;
