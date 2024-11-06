@@ -4,6 +4,8 @@ import com.example.database.DBProxy;
 import com.example.database.Database;
 import com.example.item.Item;
 import com.example.order.Order;
+import com.example.order.observer.EmailNotificationObserver;
+import com.example.order.observer.SmsNotificationObserver;
 import com.example.payment.strategy.CardPayment;
 import com.example.payment.strategy.PaymentStrategy;
 import com.example.payment.strategy.PaypalPayment;
@@ -22,6 +24,10 @@ public abstract class OrderCreator {
 
     public void processOrder(Item item, ArrayList<UnaryOperator<Order>> decorators, String paymentType) {
         Order order = createOrder();
+
+        order.addObserver(new EmailNotificationObserver());
+        order.addObserver(new SmsNotificationObserver());
+
         for (UnaryOperator<Order> decorator : decorators) {
             order = decorator.apply(order);
         }
@@ -37,6 +43,7 @@ public abstract class OrderCreator {
 
         order.setPaymentStrategy(ps);
         order.pay(total);
+        order.notifyObservers("zapłacono");
 
         dbHandle.executeQuery("INSERT INTO ORDERS ... VALUES ...");
         System.out.println(details + " " + deliveryTime + " " + total);
