@@ -4,6 +4,9 @@ import com.example.database.DBProxy;
 import com.example.database.Database;
 import com.example.item.Item;
 import com.example.order.Order;
+import com.example.order.handler.OrderHandler;
+import com.example.order.handler.PaymentVerificationHandler;
+import com.example.order.handler.StockAvailabilityHandler;
 import com.example.order.observer.EmailNotificationObserver;
 import com.example.order.observer.SmsNotificationObserver;
 import com.example.payment.strategy.CardPayment;
@@ -44,6 +47,11 @@ public abstract class OrderCreator {
         order.setPaymentStrategy(ps);
         order.pay(total);
         order.notifyObservers("zapłacono");
+
+        OrderHandler stockHandler = new StockAvailabilityHandler();
+        OrderHandler paymentHandler = new PaymentVerificationHandler();
+        stockHandler.setNextHandler(paymentHandler);
+        stockHandler.handle(order);
 
         dbHandle.executeQuery("INSERT INTO ORDERS ... VALUES ...");
         System.out.println(details + " " + deliveryTime + " " + total);
