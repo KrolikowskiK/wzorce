@@ -5,20 +5,19 @@ import com.example.item.Item;
 import com.example.item.Package;
 import com.example.item.Product;
 import com.example.order.Order;
+import com.example.order.command.OrderInvoker;
 import com.example.order.creator.ExpressOrderCreator;
 import com.example.order.creator.OrderCreator;
 import com.example.order.creator.PickupOrderCreator;
 import com.example.order.decorator.DiscountDecorator;
 import com.example.order.decorator.GiftWrappingDecorator;
 import com.example.order.decorator.ShippingInsuranceDecorator;
-import com.example.payment.service.PaymentAdapter;
 
 import java.util.ArrayList;
 import java.util.function.UnaryOperator;
 
 public class Main {
     public static void main(String[] args) {
-
         Item compositeItem = new Package(
             new Item[] {
                 new Product(),
@@ -26,14 +25,16 @@ public class Main {
             }
         );
 
-        makeOrder(compositeItem, "express", "paypal", new String[] { "shippingInsurance" });
-        makeOrder(compositeItem, "pickup", "card", new String[] { "giftWrapping", "discount" });
+        OrderInvoker orderInvoker = new OrderInvoker();
+
+        makeOrder(compositeItem, "express", "paypal", new String[] { "shippingInsurance" }, orderInvoker);
+        makeOrder(compositeItem, "pickup", "card", new String[] { "giftWrapping", "discount" }, orderInvoker);
 
         new DBProxy().printDbLogs();
     }
 
-    public static void makeOrder(Item item, String type, String paymentType, String[] decorators) {
-        ArrayList<UnaryOperator<Order>> decoratorFunctions = new ArrayList<UnaryOperator<Order>>();
+    public static void makeOrder(Item item, String type, String paymentType, String[] decorators, OrderInvoker orderInvoker) {
+        ArrayList<UnaryOperator<Order>> decoratorFunctions = new ArrayList<>();
         for (String decoName : decorators) {
             if (decoName.equals("shippingInsurance")) {
                 decoratorFunctions.add(ShippingInsuranceDecorator::new);
@@ -47,11 +48,11 @@ public class Main {
         }
 
         if (type.equals("express")) {
-            OrderCreator creator = new ExpressOrderCreator();
+            OrderCreator creator = new ExpressOrderCreator(orderInvoker);
             creator.processOrder(item, decoratorFunctions, paymentType);
         }
         if (type.equals("pickup")) {
-            OrderCreator creator = new PickupOrderCreator();
+            OrderCreator creator = new PickupOrderCreator(orderInvoker);
             creator.processOrder(item, decoratorFunctions, paymentType);
         }
         System.out.println();

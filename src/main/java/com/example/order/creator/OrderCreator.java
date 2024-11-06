@@ -4,6 +4,8 @@ import com.example.database.DBProxy;
 import com.example.database.Database;
 import com.example.item.Item;
 import com.example.order.Order;
+import com.example.order.command.AddOrderCommand;
+import com.example.order.command.OrderInvoker;
 import com.example.order.handler.OrderHandler;
 import com.example.order.handler.PaymentVerificationHandler;
 import com.example.order.handler.StockAvailabilityHandler;
@@ -18,15 +20,18 @@ import java.util.function.UnaryOperator;
 
 public abstract class OrderCreator {
     private Database dbHandle;
+    private OrderInvoker orderInvoker;
 
-    public OrderCreator() {
+    public OrderCreator(OrderInvoker orderInvoker) {
         this.dbHandle = new DBProxy();
+        this.orderInvoker = orderInvoker;
     }
 
     public abstract Order createOrder();
 
     public void processOrder(Item item, ArrayList<UnaryOperator<Order>> decorators, String paymentType) {
         Order order = createOrder();
+        orderInvoker.executeCommand(new AddOrderCommand(order));
 
         order.addObserver(new EmailNotificationObserver());
         order.addObserver(new SmsNotificationObserver());
