@@ -1,6 +1,8 @@
 package com.example;
 
+import com.example.cart.Cart;
 import com.example.database.DBProxy;
+import com.example.inventory.Inventory;
 import com.example.item.Item;
 import com.example.item.Package;
 import com.example.item.Product;
@@ -12,12 +14,30 @@ import com.example.order.creator.PickupOrderCreator;
 import com.example.order.decorator.DiscountDecorator;
 import com.example.order.decorator.GiftWrappingDecorator;
 import com.example.order.decorator.ShippingInsuranceDecorator;
+import com.example.order.mediator.ConcreteOrderMediator;
+import com.example.order.mediator.OrderMediator;
+import com.example.payment.strategy.CardPayment;
 
 import java.util.ArrayList;
 import java.util.function.UnaryOperator;
 
 public class Main {
     public static void main(String[] args) {
+        Inventory inventory = new Inventory();
+
+        Cart cart1 = new Cart();
+        cart1.addItem(new Package(
+                new Item[] {
+                        new Product(),
+                        new Package(new Item[] { new Product(), new Product() } )
+                }
+        ));
+
+        OrderMediator orderMediator = new ConcreteOrderMediator(cart1, inventory, new CardPayment());
+        orderMediator.validateCart();
+        orderMediator.checkInventory();
+        orderMediator.processPayment();
+
         Item compositeItem = new Package(
             new Item[] {
                 new Product(),
