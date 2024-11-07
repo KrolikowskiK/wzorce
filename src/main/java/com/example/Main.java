@@ -1,12 +1,19 @@
 package com.example;
 
+import com.example.authenticator.BiometricAuthenticator;
+import com.example.authenticator.PasswordAuthenticator;
+import com.example.authenticator.UserAuthenticator;
 import com.example.cart.Cart;
 import com.example.cart.CartMemento;
+import com.example.cart.DiscountedCart;
 import com.example.database.DBProxy;
 import com.example.inventory.Inventory;
 import com.example.item.Item;
 import com.example.item.Package;
 import com.example.item.Product;
+import com.example.notification.EmailNotificationSender;
+import com.example.notification.NotificationSender;
+import com.example.notification.SMSNotificationSender;
 import com.example.order.Order;
 import com.example.order.command.OrderInvoker;
 import com.example.order.creator.ExpressOrderCreator;
@@ -36,6 +43,21 @@ public class Main {
         System.out.println("Wartość koszyka: " + cart1.getTotalAmount());
         cart1.restore(cart1Memento);
         System.out.println("Wartość koszyka: " + cart1.getTotalAmount());
+
+        Cart cart2 = new DiscountedCart(10);
+        cart2.addProduct(new Product("orange"));
+        cart2.addProduct(new Product("banana"));
+        System.out.println("Wartość koszyka z raabatem: " + cart2.getTotalAmount());
+
+        NotificationSender notification = new EmailNotificationSender();
+        System.out.println(notification.sendNotification("Promocja 20%!"));
+        notification = new SMSNotificationSender();
+        System.out.println(notification.sendNotification("Promocja 20%!"));
+
+        UserAuthenticator authenticator = new PasswordAuthenticator();
+        System.out.println("Autoryzacja hasłem: " + authenticator.authenticate("Jan"));
+        authenticator = new BiometricAuthenticator();
+        System.out.println("Autoryzacja biometryczna: " + authenticator.authenticate("Jan"));
 
         OrderMediator orderMediator = new ConcreteOrderMediator(cart1, inventory, new CardPayment());
         orderMediator.validateCart();
