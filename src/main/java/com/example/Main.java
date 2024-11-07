@@ -1,6 +1,7 @@
 package com.example;
 
 import com.example.cart.Cart;
+import com.example.cart.CartMemento;
 import com.example.database.DBProxy;
 import com.example.inventory.Inventory;
 import com.example.item.Item;
@@ -26,12 +27,15 @@ public class Main {
         Inventory inventory = new Inventory();
 
         Cart cart1 = new Cart();
-        cart1.addItem(new Package(
-                new Item[] {
-                        new Product(),
-                        new Package(new Item[] { new Product(), new Product() } )
-                }
-        ));
+        cart1.addProduct(new Product("car seat"));
+        cart1.addProduct(new Product("engine oil"));
+        cart1.addProduct(new Product("camshaft"));
+        System.out.println("Wartość koszyka: " + cart1.getTotalAmount());
+        CartMemento cart1Memento = cart1.save();
+        cart1.removeProduct("camshaft");
+        System.out.println("Wartość koszyka: " + cart1.getTotalAmount());
+        cart1.restore(cart1Memento);
+        System.out.println("Wartość koszyka: " + cart1.getTotalAmount());
 
         OrderMediator orderMediator = new ConcreteOrderMediator(cart1, inventory, new CardPayment());
         orderMediator.validateCart();
@@ -40,8 +44,8 @@ public class Main {
 
         Item compositeItem = new Package(
             new Item[] {
-                new Product(),
-                new Package(new Item[] { new Product(), new Product() } )
+                new Product("shoes"),
+                new Package(new Item[] { new Product("butter"), new Product("toothpaste") } )
             }
         );
 

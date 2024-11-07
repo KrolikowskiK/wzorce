@@ -1,13 +1,15 @@
 package com.example.cart;
 
 import com.example.item.Item;
+import com.example.item.Product;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
+import java.util.stream.Collectors;
 
 public class Cart {
-    private List<Item> itemList = new ArrayList<>();
+    private List<Product> products = new ArrayList<>();
     private boolean isValid;
 
     public void validateItems() {
@@ -19,16 +21,31 @@ public class Cart {
     }
 
     public double getTotalAmount() {
-        return itemList.stream()
+        return products.stream()
                 .map(Item::getPrice)
                 .reduce(0.0, Double::sum);
     }
 
-    public void addItem(Item item) {
-        this.itemList.add(item);
+    public void addProduct(Product product) {
+        products.add(product);
     }
 
-    public List<Item> getItems() {
-        return this.itemList;
+    public void removeProduct(String productName) {
+        products = products.stream()
+                .filter((product) -> !product.getName().equals(productName))
+                .collect(Collectors.toList());
+    }
+
+    public CartMemento save() {
+        return new CartMemento(products);
+    }
+
+    public void restore(CartMemento memento) {
+        products = memento.getProducts();
+        System.out.println("Przywrócono stan koszyka");
+    }
+
+    public List<Product> getProducts() {
+        return this.products;
     }
 }
