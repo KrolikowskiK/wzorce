@@ -8,7 +8,7 @@ public class Product implements Item {
 
     public Product(String name) {
         this.name = name;
-        price = new Random().nextDouble() * 10;
+        this.price = new Random().nextDouble(100, 300);
     }
 
     public String getName() {

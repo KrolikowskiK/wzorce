@@ -13,7 +13,7 @@ public class OrderService implements OrderProcessor {
     private final NotificationService notificationService = new NotificationService();
 
     @Override
-    public void processOrder(Order order) {
+    public void processOrder(Order order, OrderDiscountApplier discountApplier) {
 
         Describer modifiedOrder = order;
         for (UnaryOperator<Describer> modifier : order.getModifiers())
@@ -22,9 +22,10 @@ public class OrderService implements OrderProcessor {
         double total = modifiedOrder.getTotal();
         System.out.println("Total: " + total);
 
-        order.pay(total);
+        double discounted = total - discountApplier.apply(total);
+        order.pay(discounted);
         for (NotificationSender notificator : order.getNotifiers()) {
-            notificationService.notifyCustomer("Zapłacono: " + total, notificator);
+            notificationService.notifyCustomer("Zapłacono: " + discounted, notificator);
         }
 
         deliveryService.commissionDelivery(order.getOrderId(), order.getDeliverer());

@@ -12,7 +12,7 @@ import java.util.Random;
 import java.util.function.UnaryOperator;
 
 public class Order implements Describer {
-    private String orderId;
+    private final String orderId;
     protected User user;
     protected List<Item> items;
     protected Deliverer deliverer;
