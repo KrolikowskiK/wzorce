@@ -1,6 +1,7 @@
 package com.example.payment.service;
 
-// our payment service
+import com.example.payment.method.PaymentMethod;
+
 public interface PaymentProcessor {
-    void processPayment(double amount);
+    void processPayment(PaymentMethod method, double amount);
 }

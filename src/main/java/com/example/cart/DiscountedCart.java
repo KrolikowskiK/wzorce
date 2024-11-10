@@ -1,7 +1,7 @@
 package com.example.cart;
 
 public class DiscountedCart extends Cart {
-    private double discountPercentage;
+    private final double discountPercentage;
 
     public DiscountedCart(double discountPercentage) {
         this.discountPercentage = discountPercentage;

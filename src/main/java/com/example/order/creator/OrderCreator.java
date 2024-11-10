@@ -1,64 +1,89 @@
 package com.example.order.creator;
 
-import com.example.database.DBProxy;
-import com.example.database.Database;
 import com.example.item.Item;
-import com.example.order.Order;
-import com.example.order.command.AddOrderCommand;
-import com.example.order.command.OrderInvoker;
-import com.example.order.handler.OrderHandler;
-import com.example.order.handler.PaymentVerificationHandler;
-import com.example.order.handler.StockAvailabilityHandler;
-import com.example.order.observer.EmailNotificationObserver;
-import com.example.order.observer.SmsNotificationObserver;
-import com.example.payment.strategy.CardPayment;
-import com.example.payment.strategy.PaymentStrategy;
-import com.example.payment.strategy.PaypalPayment;
+import com.example.notification.method.EmailNotificationSender;
+import com.example.notification.method.PushNotificationSender;
+import com.example.notification.method.SMSNotificationSender;
+import com.example.order.modifiers.DiscountModifier;
+import com.example.order.modifiers.GiftWrappingModifier;
+import com.example.order.modifiers.InsuranceModifier;
+import com.example.order.delivery.method.DpdDelivery;
+import com.example.order.delivery.method.InpostDelivery;
+import com.example.order.delivery.method.ShopDelivery;
+import com.example.payment.method.*;
+import com.example.user.User;
 
-import java.util.ArrayList;
-import java.util.function.UnaryOperator;
+import java.util.List;
 
-public abstract class OrderCreator {
-    private Database dbHandle;
-    private OrderInvoker orderInvoker;
+public class OrderCreator {
+    private final Order order;
 
-    public OrderCreator(OrderInvoker orderInvoker) {
-        this.dbHandle = new DBProxy();
-        this.orderInvoker = orderInvoker;
+    public OrderCreator(User user, List<Item> items) {
+        this.order = new Order(user, items);
     }
 
-    public abstract Order createOrder();
-
-    public void processOrder(Item item, ArrayList<UnaryOperator<Order>> decorators, String paymentType) {
-        Order order = createOrder();
-        orderInvoker.executeCommand(new AddOrderCommand(order));
-
-        order.addObserver(new EmailNotificationObserver());
-        order.addObserver(new SmsNotificationObserver());
-
-        for (UnaryOperator<Order> decorator : decorators) {
-            order = decorator.apply(order);
+    public void setPaymentMethod(String method) throws Exception {
+        switch (method) {
+            case "visa":
+                order.setPaymentStrategy(new VisaPayment());
+                break;
+            case "mastercard":
+                order.setPaymentStrategy(new MastercardPayment());
+                break;
+            case "paypal":
+                order.setPaymentStrategy(new PaypalPayment());
+                break;
+            default:
+                throw new Exception("Nieznana metoda płatności");
         }
-        String details = order.getOrderDetails();
-        String deliveryTime = order.getDeliveryTime();
+    }
 
-        double total = order.getTotal(item);
-        PaymentStrategy ps;
-        if (paymentType.equals("card"))
-            ps = new CardPayment();
-        else
-            ps = new PaypalPayment();
+    public void setDeliverer(String name) throws Exception {
+        switch (name) {
+            case "dpd":
+                order.setDeliverer(new DpdDelivery());
+                break;
+            case "inpost":
+                order.setDeliverer(new InpostDelivery());
+                break;
+            case "shop":
+                order.setDeliverer(new ShopDelivery());
+                break;
+            default:
+                throw new Exception("Nieznany dostawca");
+        }
+    }
 
-        order.setPaymentStrategy(ps);
-        order.pay(total);
-        order.notifyObservers("zapłacono");
+    public void addNotificationChannel(String name) throws Exception {
+        switch (name) {
+            case "email":
+                order.addNotifier(new EmailNotificationSender());
+                break;
+            case "push":
+                order.addNotifier(new PushNotificationSender());
+                break;
+            case "sms":
+                order.addNotifier(new SMSNotificationSender());
+                break;
+            default:
+                throw new Exception("Nieznana metoda powiadamiania");
+        }
+    }
 
-        OrderHandler stockHandler = new StockAvailabilityHandler();
-        OrderHandler paymentHandler = new PaymentVerificationHandler();
-        stockHandler.setNextHandler(paymentHandler);
-        stockHandler.handle(order);
+    public void addModifier(String name) throws Exception {
+        switch (name) {
+            case "gift":
+                order.addModifier(GiftWrappingModifier::new);
+                break;
+            case "discount":
+                order.addModifier(DiscountModifier::new);
+                break;
+            case "insurance":
+                order.addModifier(InsuranceModifier::new);
+        }
+    }
 
-        dbHandle.executeQuery("INSERT INTO ORDERS ... VALUES ...");
-        System.out.println(details + " " + deliveryTime + " " + total);
+    public Order getOrder() {
+        return this.order;
     }
 }

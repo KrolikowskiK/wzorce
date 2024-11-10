@@ -4,8 +4,8 @@ import java.util.Arrays;
 import java.util.Random;
 
 public class Package implements Item {
-    private double price;
-    private Item[] items;
+    private final double price;
+    private final Item[] items;
 
     public Package(Item[] items) {
         price = new Random().nextDouble() * 5;

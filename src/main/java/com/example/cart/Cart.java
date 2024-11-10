@@ -26,8 +26,9 @@ public class Cart {
                 .reduce(0.0, Double::sum);
     }
 
-    public void addProduct(Product product) {
+    public Cart addProduct(Product product) {
         products.add(product);
+        return this;
     }
 
     public void removeProduct(String productName) {
