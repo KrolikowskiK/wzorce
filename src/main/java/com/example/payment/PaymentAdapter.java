@@ -3,6 +3,7 @@ package com.example.payment;
 import com.example.database.DBProxy;
 import com.example.database.Database;
 
+// L1 start adapter, proxy
 public class PaymentAdapter implements PaymentProcessor {
     private ExternalPaymentService externalService;
     private Database dbHandle;

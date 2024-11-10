@@ -23,6 +23,7 @@ public class Main {
         ExternalPaymentService paymentService = new ExternalPaymentService();
         PaymentAdapter adapter = new PaymentAdapter(paymentService);
 
+        // L1 start composite
         Item compositeItem = new Package(
             new Item[] {
                 new Product(),

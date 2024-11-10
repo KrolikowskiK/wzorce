@@ -9,6 +9,7 @@ import com.example.payment.PaymentProcessor;
 import java.util.ArrayList;
 import java.util.function.UnaryOperator;
 
+// Lab 1 start Factory method
 public abstract class OrderCreator {
     private PaymentProcessor pp;
     private Database dbHandle;
